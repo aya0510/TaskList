@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Task Hub - Pro Edition</title>
+    <title>Business Task Hub - Optimized Edition</title>
     <style>
         :root { --high: #ef4444; --mid: #f59e0b; --low: #3b82f6; --bg: #f8fafc; --border: #e2e8f0; --primary: #1e293b; --today-bg: #eff6ff; --today-border: #3b82f6; }
         * { box-sizing: border-box; }
@@ -30,18 +30,27 @@
         .item-high { border-left-color: var(--high); }
         .item-medium { border-left-color: var(--mid); }
         .item-low { border-left-color: var(--low); }
-        .delete-btn { width: 30px; padding: 5px; background: #fee2e2; color: #ef4444; border: none; margin-left: 5px; border-radius: 5px; cursor: pointer; }
+        .btn-group { display: flex; gap: 4px; }
+        .icon-btn { width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); background: white; }
+        .delete-btn { color: #ef4444; background: #fee2e2; border: none; }
 
         /* Calendar */
-        .calendar-container { background: white; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); }
+        .calendar-container { background: white; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f1f5f9; border-bottom: 1px solid var(--border); }
+        .calendar-header h1 { font-size: 1.5rem; margin: 0; color: var(--primary); font-weight: 800; letter-spacing: 1px; }
+        .calendar-header button { width: auto; padding: 8px 15px; background: white; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; overflow-y: auto; }
-        .day-name { background: #f8fafc; padding: 10px; text-align: center; font-weight: bold; font-size: 11px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .day-cell { min-height: 110px; padding: 4px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; }
-        .sun { color: #ef4444; } .sat { color: #2563eb; }
-        .today-cell { background: var(--today-bg) !important; outline: 2px solid var(--today-border); outline-offset: -2px; z-index: 5; }
-        .cal-tag { font-size: 9px; padding: 2px; border-radius: 3px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(0,0,0,0.1); }
-        .tag-deadline { border-left: 3px solid var(--high); font-weight: bold; }
+        .day-name { background: #f8fafc; padding: 12px; text-align: center; font-weight: bold; font-size: 12px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); color: #64748b; }
+        .day-cell { min-height: 110px; padding: 6px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; transition: background 0.2s; }
+        .day-cell:hover { background: #fbfcfe; }
+        .sun { color: #ef4444; background: #fffafa; } .sat { color: #2563eb; background: #f8faff; }
+        .today-cell { background: var(--today-bg) !important; outline: 3px solid var(--today-border); outline-offset: -3px; z-index: 5; }
+        .today-label { position: absolute; top: 4px; right: 4px; font-size: 9px; background: var(--today-border); color: white; padding: 1px 4px; border-radius: 3px; font-weight: bold; }
+        .day-num { font-size: 13px; font-weight: 700; color: #94a3b8; }
+
+        .cal-tag { font-size: 10px; padding: 2px 4px; border-radius: 4px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(0,0,0,0.1); font-weight: 500; }
+        .tag-deadline { border-left: 3px solid var(--high); font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
         /* Settings Area */
         .cat-edit-row { display: flex; gap: 5px; margin-bottom: 5px; }
@@ -50,11 +59,12 @@
 
         @media (max-width: 768px) {
             .menu-toggle { display: block; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: 999; transform: translateX(-100%); width: 85%; min-width: auto; transition: 0.3s; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: 999; transform: translateX(-100%); width: 85%; min-width: auto; transition: 0.3s; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
             .sidebar.open { transform: translateX(0); }
             .main-content { padding: 50px 5px 5px 5px; }
-            .day-cell { min-height: 85px; }
-            .cal-tag { font-size: 8px; padding: 1px; }
+            .calendar-header h1 { font-size: 1.2rem; }
+            .day-cell { min-height: 90px; padding: 3px; }
+            .cal-tag { font-size: 9px; }
         }
     </style>
 </head>
@@ -88,6 +98,11 @@
         </div>
     </div>
 
+    <div class="panel" style="background: #fffbeb; border-color: #fde68a;">
+        <h2 style="color: #92400e; border-bottom-color: #fef3c7;">🔥 今日のタスク</h2>
+        <div id="todayList" class="task-list"></div>
+    </div>
+
     <div class="panel">
         <h2 style="color: #3b82f6;">⏳ 進行中 <input type="text" id="searchInput" placeholder="検索..." oninput="refreshUI()" style="width:100px; font-size:10px; padding:3px;"></h2>
         <div id="activeList" class="task-list"></div>
@@ -101,7 +116,7 @@
     <div class="panel">
         <h2>🎨 カテゴリ編集</h2>
         <div id="categoryEditor"></div>
-        <button onclick="addCategory()" style="font-size:10px; margin-top:5px;">+ 新規追加</button>
+        <button onclick="addCategory()" style="font-size:11px; margin-top:8px; background:#f1f5f9;">+ 新規追加</button>
     </div>
 
     <div class="panel" style="background: #f8fafc; border: 1px solid var(--primary);">
@@ -115,9 +130,9 @@
 <div class="main-content">
     <div class="calendar-container">
         <div class="calendar-header">
-            <button onclick="changeMonth(-1)">◀</button>
-            <h1 id="monthDisplay" style="font-size:1.1rem; margin:0;"></h1>
-            <button onclick="changeMonth(1)">▶</button>
+            <button onclick="changeMonth(-1)">◀ 前月</button>
+            <h1 id="monthDisplay"></h1>
+            <button onclick="changeMonth(1)">次月 ▶</button>
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
     </div>
@@ -193,7 +208,6 @@
         saveAll(tasks); refreshUI();
     }
 
-    // カテゴリ管理
     function renderCatEditor() {
         const cats = getCats();
         const container = document.getElementById('categoryEditor');
@@ -202,7 +216,7 @@
             container.innerHTML += `<div class="cat-edit-row">
                 <input type="text" value="${c.name}" onchange="updateCat(${i}, 'name', this.value)">
                 <input type="color" value="${c.color}" onchange="updateCat(${i}, 'color', this.value)">
-                <button onclick="removeCat(${i})" style="width:30px; padding:2px; background:#fee2e2; border:none;">×</button>
+                <button onclick="removeCat(${i})" style="width:30px; background:#fee2e2; border:none;">×</button>
             </div>`;
         });
     }
@@ -212,39 +226,44 @@
 
     function refreshUI() {
         const tasks = getTasks(); const cats = getCats();
+        const todayStr = new Date().toLocaleDateString('sv-SE');
         const searchWord = document.getElementById('searchInput').value.toLowerCase();
         
-        // Selector
         const sel = document.getElementById('taskCategory'); sel.innerHTML = '';
         cats.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.name}</option>`);
         renderCatEditor();
 
-        // Lists
+        const todayList = document.getElementById('todayList'); todayList.innerHTML = '';
         const activeList = document.getElementById('activeList'); activeList.innerHTML = '';
         const doneList = document.getElementById('doneList'); doneList.innerHTML = '';
 
         tasks.filter(t => !t.completed).sort((a,b) => (a.limit||'9999') > (b.limit||'9999') ? 1 : -1).forEach(t => {
-            if(searchWord && !t.title.toLowerCase().includes(searchWord)) return;
             const c = cats.find(cat => cat.id === t.catId) || {color:'#eee'};
-            activeList.innerHTML += `<div class="task-item item-${t.priority}" style="background:${c.color}" onclick="editTask(${t.id})">
+            const html = `<div class="task-item item-${t.priority}" style="background:${c.color}" onclick="editTask(${t.id})">
                 <div style="flex:1"><strong>${t.title}</strong><div style="font-size:9px; opacity:0.6;">${t.limit?'締:'+t.limit:''}</div></div>
-                <button onclick="updateStatus(${t.id}, true)">✔</button>
+                <button onclick="updateStatus(${t.id}, true)" class="icon-btn">✔</button>
             </div>`;
+            
+            if(searchWord && !t.title.toLowerCase().includes(searchWord)) return;
+            activeList.innerHTML += html;
+            if(t.plan === todayStr || t.limit === todayStr) todayList.innerHTML += html;
         });
 
         tasks.filter(t => t.completed).slice(-5).forEach(t => {
             doneList.innerHTML += `<div class="task-item" style="opacity:0.6; background:#f1f5f9; border-left:none;">
                 <div style="flex:1"><s>${t.title}</s></div>
-                <button class="delete-btn" onclick="deleteTask(${t.id})">🗑</button>
-                <button onclick="updateStatus(${t.id}, false)">↺</button>
+                <div class="btn-group">
+                    <button class="icon-btn delete-btn" onclick="deleteTask(${t.id})">🗑</button>
+                    <button class="icon-btn" onclick="updateStatus(${t.id}, false)">↺</button>
+                </div>
             </div>`;
         });
 
-        // Calendar
+        // カレンダー描画
         const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
         const y = calDate.getFullYear(), m = calDate.getMonth();
-        const todayStr = new Date().toLocaleDateString('sv-SE');
         document.getElementById('monthDisplay').innerText = `${y}年 ${m+1}月`;
+        
         ['日','月','火','水','木','金','土'].forEach((d,i) => grid.innerHTML += `<div class="day-name ${i===0?'sun':i===6?'sat':''}">${d}</div>`);
         const first = new Date(y, m, 1).getDay();
         const last = new Date(y, m+1, 0).getDate();
@@ -254,6 +273,7 @@
             const isToday = dStr === todayStr;
             const dayIdx = new Date(y,m,d).getDay();
             let html = `<div class="day-cell ${isToday?'today-cell':''}"><span class="day-num ${dayIdx===0?'sun':dayIdx===6?'sat':''}">${d}</span>`;
+            if(isToday) html += `<span class="today-label">今日</span>`;
             tasks.filter(t => !t.completed).forEach(t => {
                 const c = cats.find(cat => cat.id === t.catId) || {color:'#eee'};
                 if(t.plan === dStr) html += `<div class="cal-tag" style="background:${c.color}">予:${t.title}</div>`;
@@ -267,13 +287,13 @@
     function exportData() { 
         const code = btoa(encodeURIComponent(JSON.stringify({tasks:getTasks(), cats:getCats()})));
         document.getElementById('transferArea').value = code;
-        alert("コードを書き出しました。コピーして保存または別の端末へ貼り付けてください。");
+        alert("コードを書き出しました。");
     }
     function importData() {
         try {
             const data = JSON.parse(decodeURIComponent(atob(document.getElementById('transferArea').value)));
-            saveAll(data.tasks, data.cats); refreshUI(); alert("読み込み完了しました。");
-        } catch(e) { alert("不正なコードです。"); }
+            saveAll(data.tasks, data.cats); refreshUI(); alert("読込完了");
+        } catch(e) { alert("無効なコードです"); }
     }
     
     refreshUI();
