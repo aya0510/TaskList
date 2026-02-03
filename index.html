@@ -3,56 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Task Hub - Edit & Memo Edition</title>
+    <title>Business Task Hub - Pro Edition</title>
     <style>
         :root { --high: #ef4444; --mid: #f59e0b; --low: #3b82f6; --bg: #f8fafc; --border: #e2e8f0; --primary: #1e293b; --today-bg: #eff6ff; --today-border: #3b82f6; }
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--primary); }
         
+        /* Layout */
         .menu-toggle { display: none; position: fixed; top: 10px; left: 10px; z-index: 1000; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar { width: 420px; min-width: 420px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 15px; overflow-y: auto; transition: transform 0.3s ease; }
-        .main-content { flex: 1; padding: 15px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .sidebar { width: 400px; min-width: 400px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 15px; overflow-y: auto; }
+        .main-content { flex: 1; padding: 15px; display: flex; flex-direction: column; overflow: hidden; }
 
+        /* Panels */
         .panel { background: white; padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        h2 { font-size: 0.8rem; color: var(--primary); margin: 0 0 10px 0; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        h2 { font-size: 0.85rem; margin: 0 0 10px 0; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
 
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        /* Form elements */
         input, select, textarea, button { padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; width: 100%; }
-        textarea { height: 60px; resize: none; font-family: inherit; }
+        textarea { height: 50px; resize: none; font-family: inherit; }
+        .btn-primary { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: #e2e8f0; color: #475569; border: none; cursor: pointer; }
         
-        .btn-container { display: flex; gap: 5px; }
-        button#add-btn { background: var(--primary); color: white; border: none; font-weight: bold; flex: 2; }
-        button#cancel-btn { background: #e2e8f0; color: #475569; border: none; flex: 1; display: none; }
-
-        .search-box { padding: 8px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 12px; background: #fcfcfc; }
-
+        /* Task items */
         .task-list { font-size: 13px; }
-        .task-item { padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; cursor: pointer; transition: background 0.2s; }
-        .task-item:hover { background: #f1f5f9; }
+        .task-item { padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; cursor: pointer; position: relative; }
         .item-high { border-left-color: var(--high); }
         .item-medium { border-left-color: var(--mid); }
         .item-low { border-left-color: var(--low); }
-        
-        /* カレンダー */
+        .delete-btn { width: 30px; padding: 5px; background: #fee2e2; color: #ef4444; border: none; margin-left: 5px; border-radius: 5px; cursor: pointer; }
+
+        /* Calendar */
         .calendar-container { background: white; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: auto repeat(6, 1fr); flex: 1; }
-        .day-name { background: #f8fafc; padding: 10px; text-align: center; font-weight: bold; font-size: 12px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .sun { color: #ef4444 !important; background: #fff5f5; }
-        .sat { color: #2563eb !important; background: #f0f7ff; }
-        .day-cell { min-height: 90px; padding: 4px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; overflow-y: auto; }
-        .today-cell { background: var(--today-bg) !important; outline: 3px solid var(--today-border); outline-offset: -3px; z-index: 5; }
-        .today-label { position: absolute; top: 4px; right: 4px; font-size: 9px; background: var(--today-border); color: white; padding: 1px 4px; border-radius: 3px; font-weight: bold; }
-        .day-num { font-size: 12px; color: #94a3b8; font-weight: bold; }
-        .cal-tag { font-size: 10px; padding: 2px 4px; border-radius: 4px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(0,0,0,0.1); font-weight: 500; }
-        .tag-deadline { border: 1px solid var(--high); color: #b91c1c; font-weight: bold; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; overflow-y: auto; }
+        .day-name { background: #f8fafc; padding: 10px; text-align: center; font-weight: bold; font-size: 11px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .day-cell { min-height: 110px; padding: 4px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; }
+        .sun { color: #ef4444; } .sat { color: #2563eb; }
+        .today-cell { background: var(--today-bg) !important; outline: 2px solid var(--today-border); outline-offset: -2px; z-index: 5; }
+        .cal-tag { font-size: 9px; padding: 2px; border-radius: 3px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(0,0,0,0.1); }
+        .tag-deadline { border-left: 3px solid var(--high); font-weight: bold; }
+
+        /* Settings Area */
+        .cat-edit-row { display: flex; gap: 5px; margin-bottom: 5px; }
+        .cat-edit-row input[type="text"] { flex: 2; padding: 5px; }
+        .cat-edit-row input[type="color"] { flex: 1; height: 34px; padding: 2px; }
 
         @media (max-width: 768px) {
             .menu-toggle { display: block; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: 999; transform: translateX(-100%); width: 85%; min-width: auto; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: 999; transform: translateX(-100%); width: 85%; min-width: auto; transition: 0.3s; }
             .sidebar.open { transform: translateX(0); }
-            .main-content { padding: 50px 8px 8px 8px; }
-            .day-cell { min-height: 70px; }
+            .main-content { padding: 50px 5px 5px 5px; }
+            .day-cell { min-height: 85px; }
+            .cal-tag { font-size: 8px; padding: 1px; }
         }
     </style>
 </head>
@@ -66,12 +68,12 @@
         <div class="form-group">
             <input type="hidden" id="editId">
             <input type="text" id="taskInput" placeholder="タスク名">
-            <textarea id="taskMemo" placeholder="詳細メモ（手順やURLなど）"></textarea>
-            <div style="display:flex; gap:5px;">
-                <input type="date" id="planDate" title="開始予定日" style="flex:1">
-                <input type="date" id="deadline" title="提出期限" style="flex:1">
+            <textarea id="taskMemo" placeholder="詳細メモ..."></textarea>
+            <div style="display:flex; gap:5px; margin-top:8px;">
+                <input type="date" id="planDate" title="予定日" style="flex:1">
+                <input type="date" id="deadline" title="期限" style="flex:1">
             </div>
-            <div style="display:flex; gap:5px;">
+            <div style="display:flex; gap:5px; margin-top:8px;">
                 <select id="taskCategory" style="flex:1"></select>
                 <select id="priority" style="flex:1">
                     <option value="high">高</option>
@@ -79,27 +81,34 @@
                     <option value="low">低</option>
                 </select>
             </div>
-            <div class="btn-container">
-                <button id="add-btn" onclick="saveTask()">登録</button>
-                <button id="cancel-btn" onclick="resetForm()">取消</button>
+            <div style="display:flex; gap:5px; margin-top:8px;">
+                <button id="add-btn" class="btn-primary" onclick="saveTask()">登録</button>
+                <button id="cancel-btn" class="btn-cancel" onclick="resetForm()" style="display:none;">取消</button>
             </div>
         </div>
     </div>
 
-    <div class="panel" style="background: #fffbeb;">
-        <h2>🔥 今日のタスク</h2>
-        <div id="todayList" class="task-list"></div>
-    </div>
-    
-    <div class="panel" style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
-        <h2 style="color: #3b82f6;">⏳ 進行中（クリックで編集）</h2>
-        <input type="text" id="searchInput" class="search-box" placeholder="検索..." oninput="refreshUI()">
-        <div id="activeList" class="task-list" style="overflow-y:auto; flex:1;"></div>
+    <div class="panel">
+        <h2 style="color: #3b82f6;">⏳ 進行中 <input type="text" id="searchInput" placeholder="検索..." oninput="refreshUI()" style="width:100px; font-size:10px; padding:3px;"></h2>
+        <div id="activeList" class="task-list"></div>
     </div>
 
     <div class="panel">
         <h2 style="color: #64748b;">✅ 完了済み</h2>
         <div id="doneList" class="task-list"></div>
+    </div>
+
+    <div class="panel">
+        <h2>🎨 カテゴリ編集</h2>
+        <div id="categoryEditor"></div>
+        <button onclick="addCategory()" style="font-size:10px; margin-top:5px;">+ 新規追加</button>
+    </div>
+
+    <div class="panel" style="background: #f8fafc; border: 1px solid var(--primary);">
+        <h2>🌐 同期・バックアップ</h2>
+        <button onclick="exportData()" style="font-size:11px; margin-bottom:5px;">データを書き出す</button>
+        <textarea id="transferArea" placeholder="ここにコードを貼り付けて読込" style="font-size:10px; height:40px;"></textarea>
+        <button onclick="importData()" style="font-size:11px; background:#10b981; color:white; border:none; margin-top:5px;">データを読み込む</button>
     </div>
 </div>
 
@@ -107,7 +116,7 @@
     <div class="calendar-container">
         <div class="calendar-header">
             <button onclick="changeMonth(-1)">◀</button>
-            <h1 id="monthDisplay" style="font-size:1.2rem;"></h1>
+            <h1 id="monthDisplay" style="font-size:1.1rem; margin:0;"></h1>
             <button onclick="changeMonth(1)">▶</button>
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
@@ -116,49 +125,37 @@
 
 <script>
     let calDate = new Date();
-    const TASK_KEY = 'BizTask_Tasks_vMobile';
-    const CAT_KEY = 'BizTask_Cats_vMobile';
+    const TASK_KEY = 'BizTask_Tasks_vFinal';
+    const CAT_KEY = 'BizTask_Cats_vFinal';
 
-    function toggleSidebar() { if (window.innerWidth <= 768) document.getElementById('sidebar').classList.toggle('open'); }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
     function getTasks() { return JSON.parse(localStorage.getItem(TASK_KEY) || '[]'); }
     function getCats() { return JSON.parse(localStorage.getItem(CAT_KEY) || '[{"id":"c1","name":"仕事","color":"#dcfce7"},{"id":"c2","name":"会議","color":"#fef9c3"}]'); }
-    function saveAll(t) { localStorage.setItem(TASK_KEY, JSON.stringify(t)); }
+    function saveAll(t, c) { if(t) localStorage.setItem(TASK_KEY, JSON.stringify(t)); if(c) localStorage.setItem(CAT_KEY, JSON.stringify(c)); }
 
-    // タスク保存（新規・更新共通）
     function saveTask() {
         const title = document.getElementById('taskInput').value.trim();
         if (!title) return;
-        const editId = document.getElementById('editId').value;
         const tasks = getTasks();
-
-        const taskData = {
+        const editId = document.getElementById('editId').value;
+        const taskObj = {
             id: editId ? parseInt(editId) : Date.now(),
-            title: title,
-            memo: document.getElementById('taskMemo').value.trim(),
+            title, memo: document.getElementById('taskMemo').value,
             plan: document.getElementById('planDate').value,
             limit: document.getElementById('deadline').value,
             catId: document.getElementById('taskCategory').value,
             priority: document.getElementById('priority').value,
             completed: false
         };
-
-        if (editId) {
-            const index = tasks.findIndex(t => t.id === taskData.id);
-            tasks[index] = taskData;
-        } else {
-            tasks.push(taskData);
-        }
-
-        saveAll(tasks);
-        resetForm();
-        refreshUI();
-        if(window.innerWidth <= 768) toggleSidebar();
+        if(editId) {
+            const i = tasks.findIndex(t => t.id === taskObj.id);
+            tasks[i] = taskObj;
+        } else { tasks.push(taskObj); }
+        saveAll(tasks); resetForm(); refreshUI();
     }
 
-    // 編集モードへの切り替え
     function editTask(id) {
         const t = getTasks().find(t => t.id === id);
-        if (!t) return;
         document.getElementById('editId').value = t.id;
         document.getElementById('taskInput').value = t.title;
         document.getElementById('taskMemo').value = t.memo || '';
@@ -166,11 +163,9 @@
         document.getElementById('deadline').value = t.limit || '';
         document.getElementById('taskCategory').value = t.catId;
         document.getElementById('priority').value = t.priority;
-        
         document.getElementById('formTitle').innerText = "📝 タスク編集";
-        document.getElementById('add-btn').innerText = "更新する";
+        document.getElementById('add-btn').innerText = "更新";
         document.getElementById('cancel-btn').style.display = "block";
-        document.getElementById('taskInput').focus();
     }
 
     function resetForm() {
@@ -184,75 +179,103 @@
         document.getElementById('cancel-btn').style.display = "none";
     }
 
-    function updateStatus(id, isDone) {
-        event.stopPropagation(); // 編集イベントの発火を防ぐ
-        const tasks = getTasks();
-        const t = tasks.find(t => t.id === id);
-        if (t) { t.completed = isDone; t.completedDate = isDone ? new Date().toLocaleDateString('sv-SE') : null; }
-        saveAll(tasks);
-        refreshUI();
+    function deleteTask(id) {
+        if(!confirm("このタスクを完全に削除しますか？")) return;
+        const tasks = getTasks().filter(t => t.id !== id);
+        saveAll(tasks); refreshUI();
     }
 
-    function refreshUI() {
+    function updateStatus(id, isDone) {
+        event.stopPropagation();
         const tasks = getTasks();
+        const t = tasks.find(t => t.id === id);
+        t.completed = isDone;
+        saveAll(tasks); refreshUI();
+    }
+
+    // カテゴリ管理
+    function renderCatEditor() {
         const cats = getCats();
-        const todayStr = new Date().toLocaleDateString('sv-SE');
-        const searchWord = document.getElementById('searchInput').value.toLowerCase();
-
-        const catSelect = document.getElementById('taskCategory');
-        catSelect.innerHTML = '';
-        cats.forEach(c => catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`);
-
-        const todayList = document.getElementById('todayList');
-        const activeList = document.getElementById('activeList');
-        const doneList = document.getElementById('doneList');
-        todayList.innerHTML = ''; activeList.innerHTML = ''; doneList.innerHTML = '';
-
-        const sorted = tasks.filter(t => !t.completed).sort((a, b) => (a.limit || '9999') > (b.limit || '9999') ? 1 : -1);
-
-        sorted.forEach(t => {
-            const cat = cats.find(c => c.id === t.catId) || { color: '#eee', name: '?' };
-            if (searchWord && !t.title.toLowerCase().includes(searchWord)) return;
-
-            const html = `<div class="task-item item-${t.priority}" style="background:${cat.color}" onclick="editTask(${t.id})">
-                <div style="flex:1">
-                    <strong>${t.title}</strong>
-                    ${t.memo ? '<div style="font-size:9px; color:#666; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">'+t.memo+'</div>' : ''}
-                    <div style="font-size:10px; opacity:0.7;">⏰ ${t.limit || '--'}</div>
-                </div>
-                <button onclick="updateStatus(${t.id}, true)" style="width:40px; margin-left:10px;">✔</button>
+        const container = document.getElementById('categoryEditor');
+        container.innerHTML = '';
+        cats.forEach((c, i) => {
+            container.innerHTML += `<div class="cat-edit-row">
+                <input type="text" value="${c.name}" onchange="updateCat(${i}, 'name', this.value)">
+                <input type="color" value="${c.color}" onchange="updateCat(${i}, 'color', this.value)">
+                <button onclick="removeCat(${i})" style="width:30px; padding:2px; background:#fee2e2; border:none;">×</button>
             </div>`;
-            activeList.innerHTML += html;
-            if(t.plan === todayStr || t.limit === todayStr) todayList.innerHTML += html;
+        });
+    }
+    function updateCat(i, key, val) { const cats = getCats(); cats[i][key] = val; saveAll(null, cats); refreshUI(); }
+    function addCategory() { const cats = getCats(); cats.push({id:'c'+Date.now(), name:'新カテゴリ', color:'#eeeeee'}); saveAll(null, cats); refreshUI(); }
+    function removeCat(i) { const cats = getCats(); cats.splice(i, 1); saveAll(null, cats); refreshUI(); }
+
+    function refreshUI() {
+        const tasks = getTasks(); const cats = getCats();
+        const searchWord = document.getElementById('searchInput').value.toLowerCase();
+        
+        // Selector
+        const sel = document.getElementById('taskCategory'); sel.innerHTML = '';
+        cats.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+        renderCatEditor();
+
+        // Lists
+        const activeList = document.getElementById('activeList'); activeList.innerHTML = '';
+        const doneList = document.getElementById('doneList'); doneList.innerHTML = '';
+
+        tasks.filter(t => !t.completed).sort((a,b) => (a.limit||'9999') > (b.limit||'9999') ? 1 : -1).forEach(t => {
+            if(searchWord && !t.title.toLowerCase().includes(searchWord)) return;
+            const c = cats.find(cat => cat.id === t.catId) || {color:'#eee'};
+            activeList.innerHTML += `<div class="task-item item-${t.priority}" style="background:${c.color}" onclick="editTask(${t.id})">
+                <div style="flex:1"><strong>${t.title}</strong><div style="font-size:9px; opacity:0.6;">${t.limit?'締:'+t.limit:''}</div></div>
+                <button onclick="updateStatus(${t.id}, true)">✔</button>
+            </div>`;
         });
 
-        tasks.filter(t => t.completed).reverse().slice(0, 3).forEach(t => {
-            doneList.innerHTML += `<div class="task-item" style="background:#f1f5f9; border-left:none; opacity:0.6;"><s>${t.title}</s></div>`;
+        tasks.filter(t => t.completed).slice(-5).forEach(t => {
+            doneList.innerHTML += `<div class="task-item" style="opacity:0.6; background:#f1f5f9; border-left:none;">
+                <div style="flex:1"><s>${t.title}</s></div>
+                <button class="delete-btn" onclick="deleteTask(${t.id})">🗑</button>
+                <button onclick="updateStatus(${t.id}, false)">↺</button>
+            </div>`;
         });
 
+        // Calendar
         const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
         const y = calDate.getFullYear(), m = calDate.getMonth();
+        const todayStr = new Date().toLocaleDateString('sv-SE');
         document.getElementById('monthDisplay').innerText = `${y}年 ${m+1}月`;
-        ['日','月','火','水','木','金','土'].forEach((day, i) => grid.innerHTML += `<div class="day-name ${i===0?'sun':i===6?'sat':''}">${day}</div>`);
+        ['日','月','火','水','木','金','土'].forEach((d,i) => grid.innerHTML += `<div class="day-name ${i===0?'sun':i===6?'sat':''}">${d}</div>`);
         const first = new Date(y, m, 1).getDay();
         const last = new Date(y, m+1, 0).getDate();
         for(let i=0; i<first; i++) grid.innerHTML += `<div class="day-cell" style="background:#f9fafb"></div>`;
         for(let d=1; d<=last; d++){
             const dStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const isToday = (dStr === todayStr);
+            const isToday = dStr === todayStr;
             const dayIdx = new Date(y,m,d).getDay();
-            let tHtml = `<span class="day-num ${dayIdx===0?'sun':dayIdx===6?'sat':''}">${d}</span>`;
-            if(isToday) tHtml += `<span class="today-label">今日</span>`;
-            sorted.forEach(t => {
-                const cat = cats.find(c => c.id === t.catId) || { color: '#eee' };
-                if(t.plan === dStr) tHtml += `<div class="cal-tag" style="background:${cat.color}" title="${t.memo||''}">予:${t.title}</div>`;
-                if(t.limit === dStr) tHtml += `<div class="cal-tag tag-deadline" style="background:${cat.color}" title="${t.memo||''}">締:${t.title}</div>`;
+            let html = `<div class="day-cell ${isToday?'today-cell':''}"><span class="day-num ${dayIdx===0?'sun':dayIdx===6?'sat':''}">${d}</span>`;
+            tasks.filter(t => !t.completed).forEach(t => {
+                const c = cats.find(cat => cat.id === t.catId) || {color:'#eee'};
+                if(t.plan === dStr) html += `<div class="cal-tag" style="background:${c.color}">予:${t.title}</div>`;
+                if(t.limit === dStr) html += `<div class="cal-tag tag-deadline" style="background:${c.color}">締:${t.title}</div>`;
             });
-            grid.innerHTML += `<div class="day-cell ${isToday?'today-cell':''}">${tHtml}</div>`;
+            grid.innerHTML += html + `</div>`;
         }
     }
 
     function changeMonth(n) { calDate.setMonth(calDate.getMonth() + n); refreshUI(); }
+    function exportData() { 
+        const code = btoa(encodeURIComponent(JSON.stringify({tasks:getTasks(), cats:getCats()})));
+        document.getElementById('transferArea').value = code;
+        alert("コードを書き出しました。コピーして保存または別の端末へ貼り付けてください。");
+    }
+    function importData() {
+        try {
+            const data = JSON.parse(decodeURIComponent(atob(document.getElementById('transferArea').value)));
+            saveAll(data.tasks, data.cats); refreshUI(); alert("読み込み完了しました。");
+        } catch(e) { alert("不正なコードです。"); }
+    }
+    
     refreshUI();
 </script>
 </body>
