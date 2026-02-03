@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Task Hub - Sorted Edition</title>
+    <title>Business Task Hub - Fixed Calendar</title>
     <style>
         :root { --high: #ef4444; --mid: #f59e0b; --low: #3b82f6; --bg: #f8fafc; --border: #e2e8f0; --primary: #1e293b; }
         * { box-sizing: border-box; }
@@ -19,7 +19,6 @@
 
         .form-group { display: flex; flex-direction: column; gap: 8px; }
         input, select, button { padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; }
-        button { cursor: pointer; }
         button#add-btn { background: var(--primary); color: white; border: none; font-weight: bold; }
 
         .task-list { font-size: 13px; }
@@ -28,17 +27,24 @@
         .item-medium { border-left-color: var(--mid); }
         .item-low { border-left-color: var(--low); }
         
-        .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .history-content { background: white; width: 90%; max-width: 600px; height: 80vh; border-radius: 15px; display: flex; flex-direction: column; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .history-list { flex: 1; overflow-y: auto; margin-top: 15px; }
-
+        /* カレンダーの色設定 */
         .calendar-container { background: white; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; flex: 1; overflow: hidden; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; overflow-y: auto; }
         .day-name { background: #f8fafc; padding: 8px; text-align: center; font-weight: bold; font-size: 11px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+        
+        /* 土日の色 */
+        .sun { color: #ef4444 !important; background: #fff5f5; }
+        .sat { color: #2563eb !important; background: #f0f7ff; }
+        
         .day-cell { min-height: 80px; padding: 2px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .day-num { font-size: 11px; color: #94a3b8; font-weight: bold; }
         .cal-tag { font-size: 9px; padding: 1px 2px; border-radius: 3px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(0,0,0,0.1); }
+
+        /* モーダル */
+        .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .history-content { background: white; width: 90%; max-width: 600px; height: 80vh; border-radius: 15px; display: flex; flex-direction: column; padding: 20px; }
+        .history-list { flex: 1; overflow-y: auto; margin-top: 15px; }
 
         @media (max-width: 768px) {
             body { flex-direction: column; }
@@ -46,6 +52,7 @@
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: 999; transform: translateX(-100%); width: 85%; min-width: auto; }
             .sidebar.open { transform: translateX(0); }
             .main-content { padding: 50px 10px 10px 10px; }
+            .day-cell { min-height: 65px; }
         }
     </style>
 </head>
@@ -56,7 +63,7 @@
 <div class="history-overlay" id="historyOverlay">
     <div class="history-content">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="border:none; margin:0;">🏁 完了タスク全履歴</h2>
+            <h2>🏁 完了タスク全履歴</h2>
             <button onclick="toggleHistory()" style="background:none; border:none; font-size:20px;">✕</button>
         </div>
         <div id="fullHistoryList" class="history-list"></div>
@@ -69,8 +76,8 @@
         <div class="form-group">
             <input type="text" id="taskInput" placeholder="タスク名">
             <div style="display:flex; gap:5px;">
-                <input type="date" id="planDate" title="開始予定日" style="flex:1">
-                <input type="date" id="deadline" title="締め切り日" style="flex:1">
+                <input type="date" id="planDate" style="flex:1">
+                <input type="date" id="deadline" style="flex:1">
             </div>
             <div style="display:flex; gap:5px;">
                 <select id="taskCategory" style="flex:1"></select>
@@ -90,22 +97,20 @@
     </div>
     
     <div class="panel">
-        <h2 style="color: #3b82f6;">⏳ 進行中（日付・優先度順）</h2>
+        <h2 style="color: #3b82f6;">⏳ 進行中</h2>
         <div id="activeList" class="task-list"></div>
     </div>
 
     <div class="panel">
-        <h2 style="color: #64748b;">✅ 完了済み 
-            <button onclick="toggleHistory()" style="font-size:10px; padding:2px 6px; background:white; color:var(--primary); border:1px solid var(--border);">全履歴を表示</button>
-        </h2>
+        <h2 style="color: #64748b;">✅ 完了済み <button onclick="toggleHistory()" style="font-size:10px;">履歴</button></h2>
         <div id="doneList" class="task-list"></div>
     </div>
 
     <div class="panel" style="background: #f8fafc; border: 1px solid #1e293b;">
         <h2>🌐 同期・引っ越し</h2>
-        <button onclick="exportData()" style="width:100%; font-size:11px; margin-bottom:5px;">① データを書き出す</button>
-        <textarea id="transferArea" style="font-size: 10px; width: 100%; height: 40px; background: #f1f5f9;"></textarea>
-        <button onclick="importData()" style="width:100%; font-size:11px; background:#10b981; color:white; border:none; margin-top:5px;">② データを読み込む</button>
+        <button onclick="exportData()" style="width:100%; font-size:11px;">① データを書き出す</button>
+        <textarea id="transferArea" style="font-size: 10px; width: 100%; height: 40px; margin: 5px 0;"></textarea>
+        <button onclick="importData()" style="width:100%; font-size:11px; background:#10b981; color:white; border:none;">② データを読み込む</button>
     </div>
 </div>
 
@@ -156,7 +161,6 @@
         if (t) { t.completed = isDone; t.completedDate = isDone ? new Date().toLocaleDateString('sv-SE') : null; }
         saveAll(tasks, null);
         refreshUI();
-        if(document.getElementById('historyOverlay').style.display === 'flex') renderHistory();
     }
 
     function refreshUI() {
@@ -164,61 +168,63 @@
         const cats = getCats();
         const todayStr = new Date().toLocaleDateString('sv-SE');
 
-        // カテゴリ反映
         const catSelect = document.getElementById('taskCategory');
         catSelect.innerHTML = '';
         cats.forEach(c => catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`);
 
-        // リスト描画準備
         const todayList = document.getElementById('todayList');
         const activeList = document.getElementById('activeList');
         const doneList = document.getElementById('doneList');
         todayList.innerHTML = ''; activeList.innerHTML = ''; doneList.innerHTML = '';
 
-        // ★ソートロジック: 期限(昇順) ＞ 優先度(高>中>低)
         const priorityWeight = { high: 1, medium: 2, low: 3 };
-        const sortedActive = tasks.filter(t => !t.completed).sort((a, b) => {
-            if ( (a.limit || '9999-12-31') !== (b.limit || '9999-12-31') ) {
-                return (a.limit || '9999-12-31') > (b.limit || '9999-12-31') ? 1 : -1;
-            }
+        const activeTasks = tasks.filter(t => !t.completed).sort((a, b) => {
+            if ((a.limit || '9999') !== (b.limit || '9999')) return (a.limit || '9999') > (b.limit || '9999') ? 1 : -1;
             return priorityWeight[a.priority] - priorityWeight[b.priority];
         });
 
-        sortedActive.forEach(t => {
+        activeTasks.forEach(t => {
             const cat = cats.find(c => c.id === t.catId) || { color: '#eee', name: '?' };
             const html = `<div class="task-item item-${t.priority}" style="background:${cat.color}">
-                <div style="flex:1"><strong>${t.title}</strong><div style="font-size:10px; opacity:0.7;">${cat.name} | ⏰ ${t.limit || '--'}</div></div>
+                <div style="flex:1"><strong>${t.title}</strong><div style="font-size:10px; opacity:0.7;">⏰ ${t.limit || '--'}</div></div>
                 <button onclick="updateStatus(${t.id}, true)">✔</button>
             </div>`;
-            
-            // 進行中リストに追加
             activeList.innerHTML += html;
-            // 今日のタスク(予定日または期限が今日)なら追加
             if(t.plan === todayStr || t.limit === todayStr) todayList.innerHTML += html;
         });
 
-        // 完了済み(直近3件)
         tasks.filter(t => t.completed).reverse().slice(0, 3).forEach(t => {
             doneList.innerHTML += `<div class="task-item" style="background:#f1f5f9; border-left:none; opacity:0.6;">
                 <div style="flex:1; font-size:11px;"><s>${t.title}</s></div>
             </div>`;
         });
 
-        // カレンダー描画
+        // カレンダー再描画
         const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
         const y = calDate.getFullYear(), m = calDate.getMonth();
         document.getElementById('monthDisplay').innerText = `${y}年 ${m+1}月`;
+        
+        ['日','月','火','水','木','金','土'].forEach((dayName, i) => {
+            const cls = i === 0 ? 'sun' : i === 6 ? 'sat' : '';
+            grid.innerHTML += `<div class="day-name ${cls}">${dayName}</div>`;
+        });
+
         const first = new Date(y, m, 1).getDay();
         const last = new Date(y, m+1, 0).getDate();
         for(let i=0; i<first; i++) grid.innerHTML += `<div class="day-cell" style="background:#f9fafb"></div>`;
+        
         for(let d=1; d<=last; d++){
+            const dObj = new Date(y, m, d);
+            const dayIdx = dObj.getDay();
             const dStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            let tHtml = `<span class="day-num">${d}</span>`;
-            sortedActive.filter(t => t.plan === dStr || t.limit === dStr).forEach(t => {
+            const cls = dayIdx === 0 ? 'sun' : dayIdx === 6 ? 'sat' : '';
+            
+            let tHtml = `<span class="day-num ${cls}">${d}</span>`;
+            activeTasks.filter(t => t.plan === dStr || t.limit === dStr).forEach(t => {
                 const cat = cats.find(c => c.id === t.catId) || { color: '#eee' };
                 tHtml += `<div class="cal-tag" style="background:${cat.color}">${t.title}</div>`;
             });
-            grid.innerHTML += `<div class="day-cell">${tHtml}</div>`;
+            grid.innerHTML += `<div class="day-cell ${cls}">${tHtml}</div>`;
         }
     }
 
@@ -226,17 +232,17 @@
         const tasks = getTasks().filter(t => t.completed).sort((a,b) => b.id - a.id);
         const cats = getCats();
         const list = document.getElementById('fullHistoryList');
-        list.innerHTML = tasks.length ? '' : '<p style="text-align:center; color:#94a3b8; font-size:13px;">履歴はありません</p>';
+        list.innerHTML = tasks.length ? '' : '<p>履歴なし</p>';
         tasks.forEach(t => {
             list.innerHTML += `<div class="task-item" style="background:#f1f5f9; border-left:none;">
-                <div style="flex:1;"><div style="font-size:12px; font-weight:bold;"><s>${t.title}</s></div><div style="font-size:10px; color:#64748b;">完了: ${t.completedDate}</div></div>
-                <button onclick="updateStatus(${t.id}, false)" style="font-size:10px; padding:4px 8px; background:white;">戻す</button>
+                <div style="flex:1;"><s>${t.title}</s></div>
+                <button onclick="updateStatus(${t.id}, false); renderHistory();">戻す</button>
             </div>`;
         });
     }
 
     function changeMonth(n) { calDate.setMonth(calDate.getMonth() + n); refreshUI(); }
-    function exportData() { document.getElementById('transferArea').value = btoa(encodeURIComponent(JSON.stringify({tasks:getTasks(), cats:getCats()}))); alert("書き出しました。"); }
+    function exportData() { document.getElementById('transferArea').value = btoa(encodeURIComponent(JSON.stringify({tasks:getTasks(), cats:getCats()}))); alert("コピーしました"); }
     function importData() { try { const d = JSON.parse(decodeURIComponent(atob(document.getElementById('transferArea').value))); saveAll(d.tasks, d.cats); refreshUI(); alert("完了"); } catch(e){ alert("エラー"); } }
     
     refreshUI();
